@@ -1,12 +1,6 @@
-/****************************************************************************
- Wyatt Technology Corporation
- 6300 Hollister Avenue
- Goleta, CA 93117
-
- Copyright (c) 2002-2014. All rights reserved.
-****************************************************************************/
-
 #pragma once
+
+#include <boost/any.hpp>
 
 template <typename Src_t, typename Dest_t>
 const Dest_t* SwitchCast (const Src_t& src)
@@ -50,6 +44,12 @@ WCase<Arg_t, Handler_t> Case (const Handler_t& handler)
    return WCase<Arg_t, Handler_t>(handler);
 }
 
+template <typename Base_t>
+bool IsOneOf (const Base_t& base)
+{
+   return false;
+}
+
 template <typename Arg_t, typename... Args_t, typename Base_t>
 bool IsOneOf (const Base_t& base)
 {
@@ -59,15 +59,10 @@ bool IsOneOf (const Base_t& base)
    }
    else
    {
-      return IsOneOf<Arg_t...> (base);
+      return IsOneOf<Args_t...> (base);
    }
 }
 
-template <typename Arg_t, typename Base_t>
-bool IsOneOf (const Base_t& base)
-{
-   return SwitchCast<Arg_t>(base);
-}
 
 template <typename Handler_t, typename ... Args_t>
 struct WOneOf
@@ -131,6 +126,16 @@ struct IgnoreOthers
    }         
 };
 
+template <typename Arg_t, typename Handler_t>
+void Switch (const Arg_t& arg, const WOtherwise<Handler_t>& handler)
+{
+   handler (arg);
+}
+
+template <typename Arg_t>
+void Switch (const Arg_t& arg, const IgnoreOthers&)
+{}
+
 template <typename Arg_t, typename Handler_t, typename... Handlers_t>
 void Switch (const Arg_t& arg, const Handler_t& handler, const Handlers_t&... handlers)
 {
@@ -143,45 +148,35 @@ void Switch (const Arg_t& arg, const Handler_t& handler, const Handlers_t&... ha
    }
 }
 
-template <typename Arg_t, typename Handler_t>
-void Switch (const Arg_t& arg, const WOtherwise<Handler_t>& handler)
-{
-   handler (arg);
-}
-
-template <typename Arg_t>
-void Switch (const Arg_t& arg, const IgnoreOthers&)
-{}
-
-void Test ()
-{
-   Switch (
-      arg,
-      Case<WType1>(
-         [&](const WType1& arg)
-         {
-         }),
-      Case<WType2>(
-         [&](const WType2& arg)
-         {
-            Switch (
-               arg,
-               Case<WDerivedFromType2>(
-                  [&](const WDerivedFromType2& arg)
-                  {
-                  }),
-               IgnoreOthers ());
-         }),
-      Case<WType3>(
-         [&](const WType3& arg)
-         {
-         }),
-      OneOf<WType4, WType5, WType6>(
-         [&](const Arg& arg)
-         {
-         }),         
-      Otherwise (
-         [&](const Arg& arg)
-         {
-         }));
-}
+// void Test ()
+// {
+//    Switch (
+//       arg,
+//       Case<WType1>(
+//          [&](const WType1& arg)
+//          {
+//          }),
+//       Case<WType2>(
+//          [&](const WType2& arg)
+//          {
+//             Switch (
+//                arg,
+//                Case<WDerivedFromType2>(
+//                   [&](const WDerivedFromType2& arg)
+//                   {
+//                   }),
+//                IgnoreOthers ());
+//          }),
+//       Case<WType3>(
+//          [&](const WType3& arg)
+//          {
+//          }),
+//       OneOf<WType4, WType5, WType6>(
+//          [&](const Arg& arg)
+//          {
+//          }),         
+//       Otherwise (
+//          [&](const Arg& arg)
+//          {
+//          }));
+// }
