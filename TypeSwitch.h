@@ -15,11 +15,11 @@ const Dest_t* SwitchCast (const boost::any& src)
 }
 
 template <typename Arg_t, typename Handler_t>
-struct WCase
+struct CaseHandler
 {
    const Handler_t& m_handler;
 
-   WCase (const Handler_t& h):
+   CaseHandler (const Handler_t& h):
       m_handler (h)
    {}
 
@@ -39,9 +39,9 @@ struct WCase
 };
 
 template <typename Arg_t, typename Handler_t>
-WCase<Arg_t, Handler_t> Case (const Handler_t& handler)
+CaseHandler<Arg_t, Handler_t> Case (const Handler_t& handler)
 {
-   return WCase<Arg_t, Handler_t>(handler);
+   return CaseHandler<Arg_t, Handler_t>(handler);
 }
 
 template <typename Base_t>
@@ -63,13 +63,12 @@ bool IsOneOf (const Base_t& base)
    }
 }
 
-
 template <typename Handler_t, typename ... Args_t>
-struct WOneOf
+struct OneOfHandler
 {
    const Handler_t& m_handler;
 
-   WOneOf (const Handler_t& h):
+   OneOfHandler (const Handler_t& h):
       m_handler (h)
    {}
 
@@ -89,17 +88,17 @@ struct WOneOf
 };
 
 template <typename ... Args_t, typename Handler_t>
-WOneOf<Handler_t, Args_t...> OneOf (const Handler_t& handler)
+OneOfHandler<Handler_t, Args_t...> OneOf (const Handler_t& handler)
 {
-   return WOneOf<Handler_t, Args_t...>(handler);
+   return OneOfHandler<Handler_t, Args_t...>(handler);
 }
 
 template <typename Handler_t>
-struct WOtherwise
+struct OtherwiseHandler
 {
    const Handler_t& m_handler;
 
-   WOtherwise (const Handler_t& h):
+   OtherwiseHandler (const Handler_t& h):
       m_handler (h)
    {}
          
@@ -112,9 +111,9 @@ struct WOtherwise
 };
 
 template <typename Handler_t>
-WOtherwise<Handler_t> Otherwise (const Handler_t& handler)
+OtherwiseHandler<Handler_t> Otherwise (const Handler_t& handler)
 {
-   return WOtherwise<Handler_t>(handler);
+   return OtherwiseHandler<Handler_t>(handler);
 }
 
 struct IgnoreOthers
@@ -127,7 +126,7 @@ struct IgnoreOthers
 };
 
 template <typename Arg_t, typename Handler_t>
-void Switch (const Arg_t& arg, const WOtherwise<Handler_t>& handler)
+void Switch (const Arg_t& arg, const OtherwiseHandler<Handler_t>& handler)
 {
    handler (arg);
 }
@@ -147,36 +146,3 @@ void Switch (const Arg_t& arg, const Handler_t& handler, const Handlers_t&... ha
       Switch (arg, handlers...);
    }
 }
-
-// void Test ()
-// {
-//    Switch (
-//       arg,
-//       Case<WType1>(
-//          [&](const WType1& arg)
-//          {
-//          }),
-//       Case<WType2>(
-//          [&](const WType2& arg)
-//          {
-//             Switch (
-//                arg,
-//                Case<WDerivedFromType2>(
-//                   [&](const WDerivedFromType2& arg)
-//                   {
-//                   }),
-//                IgnoreOthers ());
-//          }),
-//       Case<WType3>(
-//          [&](const WType3& arg)
-//          {
-//          }),
-//       OneOf<WType4, WType5, WType6>(
-//          [&](const Arg& arg)
-//          {
-//          }),         
-//       Otherwise (
-//          [&](const Arg& arg)
-//          {
-//          }));
-// }
