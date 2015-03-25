@@ -15,7 +15,7 @@ namespace TypeSwitch
     * Casts the given object to the given type using dynamic_cast. If the cast fails then nullptr is
     * returned.
     */
-   template <typename Src_t, typename Dest_t>
+   template <typename Dest_t, typename Src_t>
    const Dest_t* SwitchCast (const Src_t& src)
    {
       return dynamic_cast<const Dest_t*>(&src);
